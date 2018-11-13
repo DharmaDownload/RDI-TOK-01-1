@@ -144,10 +144,10 @@ class OpenPecha:
         :param dir_paths: paths as strings
         :return: content of self.dirs
         """
-        dirs = {'bases': Path(dir_paths['bases']),
-                'layers': Path(dir_paths['layers']),
-                'input': Path(dir_paths['input']),
-                'output': Path(dir_paths['output'])}
+        dirs = {'bases': Path('../../') / dir_paths['bases'],
+                'layers': Path('../../') / dir_paths['layers'],
+                'input': Path('../../') / dir_paths['input'],
+                'output': Path('../../') / dir_paths['output']}
         dirs['bases'].mkdir(exist_ok=True)
         dirs['layers'].mkdir(exist_ok=True)
         dirs['input'].mkdir(exist_ok=True)
@@ -266,12 +266,13 @@ class OpenPecha:
         lyr = self.cp.format_cm_operations(lyr)
         lyr = '\n'.join([self.dmp.decode_patch(str(p)) for p in lyr])
 
-        lyr_file = self.dirs['layers'] / self.current['name'] / f'{name}.layer'
-        lyr_file.write_text(lyr, encoding='utf-8-sig')
+        if lyr:
+            lyr_file = self.dirs['layers'] / self.current['name'] / f'{name}.layer'
+            lyr_file.write_text(lyr, encoding='utf-8-sig')
 
-        if deps:
-            dep_file = self.dirs['layers'] / self.current['name'] / f'{name}.deps'
-            dep_file.write_text(deps, encoding='utf-8-sig')
+            if deps:
+                dep_file = self.dirs['layers'] / self.current['name'] / f'{name}.deps'
+                dep_file.write_text(deps, encoding='utf-8-sig')
 
     @staticmethod
     def _format_notes(patches):
@@ -327,7 +328,7 @@ class OpenPecha:
         else:
             raise ValueError('this should not happen.')
 
-        out = self.dirs['output'] / f'{self.current["name"]}_export_{"+".join(layers)}.txt'
+        out = self.dirs['output'] / f'{self.current["name"]}_{view_type}_{"+".join(layers)}.txt'
         out.write_text(view, encoding='utf-8-sig')
         if fails:
             out = self.dirs['output'] / f'{self.current["name"]}_export_{"+".join(layers)}_mistakes.txt'
@@ -356,4 +357,6 @@ if __name__ == '__main__':
     # existing.reset_current()
 
     existing.new_pecha('RDI-TOK-01-1.txt')
+    to_apply = ['tsawa', 'quotes', 'sapche']
+    existing.write_views(to_apply, 'export')
 
